@@ -1,37 +1,109 @@
+# -*- coding: gbk -*-
+import random
+import types
 from datetime import datetime
+from colorama import Fore, Style, init as init_
 
 
 class NumberBomb:
     def __init__(self):
         self.log_fp = open("log.log", 'a')
         self.log(f"== {str(datetime.now())} ==")
-        self.basic_log_map = {9: "L009: ç”¨æˆ·é€€å‡º", 10:"L010: è®¾ç½®èŒƒå›´æ—¶ä½¿ç”¨é»˜è®¤å€¼(0, 100)"}
-        self.edge = [0, 100]
+        self.basic_log_map = {9: "L009: ÓÃ»§ÍË³ö", 10: "L010: ÉèÖÃ·¶Î§Ê±Ê¹ÓÃÄ¬ÈÏÖµ(0, 100)", 11: "L01: ÉèÖÃ·¶Î§Ê±Ê¹ÓÃ×Ô¶¨ÒåÖµ",
+                              20: "L020: ÓÃ»§ÊäÈë²Â²âÊıÖµ", 22: "L022: ²ÂÊı·¶Î§±ä¸ü", 23: "L023: ²Â²âÊıÖµÎŞĞ§", 25: "L025: Ò»ÂÖÓÎÏ·Õı³£½áÊø",
+                              26: "L026: Ò»ÂÖÓÎÏ·ÌáÇ°½áÊø"}
+        init_(wrap=True)
 
         cmd = ''
         while cmd.lower() != 'quit':
-            print("""å˜¿ï¼Œä½ å¥½ï¼Œæ¬¢è¿æ¥åˆ°ã€æ•°å­—ç‚¸å¼¹ã€‘
-            è¾“å…¥quité€€å‡ºï¼Œå¦åˆ™è¯·è¾“å…¥å¼€å§‹èŒƒå›´å’Œç»“æŸèŒƒå›´ï¼š
+            self.ans = None
+            self.edge = [0, 100]
+
+            print("""ºÙ£¬ÄãºÃ£¬»¶Ó­À´µ½¡¾Êı×ÖÕ¨µ¯¡¿
+            ÊäÈëquitÍË³ö£¬·ñÔòÇëÊäÈë¿ªÊ¼·¶Î§ºÍ½áÊø·¶Î§£º
             """)
+
             cmd = input().lower()
+
             if cmd == 'quit':
                 self.log(self.basic_log_map[9])
                 break
 
             try:
                 for i in range(2):
-                    self.edge[i] = cmd.split(" ")[i]
+                    self.edge[i] = int(cmd.split(" ")[i])
+                    self.log(self.basic_log_map[11], str(self.edge))
 
             except:
                 self.log(self.basic_log_map[10])
-                print("ä½ è²Œä¼¼æ²¡æœ‰è¾“å…¥ä¸€ä¸ªæœ‰æ•ˆæ•°å€¼å™¢ï¼Œå·²ç»è®¾ä¸ºé»˜è®¤å€¼(0, 100)äº†")
+                print("ÄãÃ²ËÆÃ»ÓĞÊäÈëÒ»¸öÓĞĞ§ÊıÖµàŞ£¬ÒÑ¾­ÉèÎªÄ¬ÈÏÖµ(0, 100)ÁË")
 
-            # TODO  ä¸€è½®æ¸¸æˆ
+            # TODO  Ò»ÂÖÓÎÏ·
+            try:
+                self.guess_game()
+            except KeyboardInterrupt:
+                self.close()
 
         self.log_fp.close()
 
-    def log(self, msg):
-        self.log_fp.write(str(datetime.time) + ": " + msg)
+    def guess_game(self):
+        self.ans = random.randint(*self.edge)
+        userinput = None
+        while userinput != self.ans:
+            try:
+                userinput = int(input("ÇëÊäÈë²ÂµÄÊı£¨²»ÏëÍæÁË´ò-1£©£º"))
+            except:
+                self.log(self.basic_log_map[23], userinput)
+                continue
+
+            self.log(self.basic_log_map[20], userinput)
+
+            if userinput == -1:
+                self.log(self.basic_log_map[26])
+                return
+
+            if (userinput < self.edge[0]) or (userinput > self.edge[1]):
+                print(f"·¶Î§ÓĞÎó£¬Ó¦ÊäÈë{self.edge[0]}ÖÁ{self.edge[1]}Ö®¼äµÄÊı")
+                self.log(self.basic_log_map[23], self.edge)
+                continue
+
+            if userinput < self.ans:
+                self.edge[0] = userinput
+                print(f"¹ıĞ¡¡£µ±Ç°·¶Î§£º{self.edge[0]}ÖÁ{self.edge[1]}")
+                self.log(self.basic_log_map[22], self.edge)
+
+            elif userinput > self.ans:
+                self.edge[1] = userinput
+                print(f"¹ı´ó¡£µ±Ç°·¶Î§£º{self.edge[0]}ÖÁ{self.edge[1]}")
+                self.log(self.basic_log_map[22], self.edge)
+
+        print(Style.BRIGHT + Fore.RED+"B"+Fore.YELLOW+"O"+Fore.LIGHTRED_EX+"O"+Fore.LIGHTYELLOW_EX+"M" + Fore.RESET + "Õ¨ÁË")
+        self.log(self.basic_log_map[25])
+        input("°´¿Õ¸ñ¿ªÆôÏÂÒ»¾Ö" + Style.RESET_ALL)
 
 
-game = NumberBomb()
+    def log(self, msg, *other):
+        oth = ""
+        for o in other:
+            try:
+                oth += " " + str(o)
+            except:
+                break
+        self.log_fp.write(datetime.now().ctime() + ": " + msg + oth + "\n")
+
+    def close(self):
+        self.log(self.basic_log_map[9], "Ç¿ÖÆ½áÊø")
+        self.log_fp.close()
+        exit(-3)
+
+
+try:
+    game = NumberBomb()
+except KeyboardInterrupt:
+    try:
+        game.close()
+        exit(-3)
+    except NameError:
+        exit(-2)
+
+
